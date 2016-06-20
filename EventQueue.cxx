@@ -17,7 +17,6 @@ EventQueue::EventQueue()
 {
 	if(pthread_cond_and_mutex_init() == -1)
 		printf("pthread cond and mutex init error\n");
-	queue = new std::deque<struct bufferevent*>();
 }
 
 int EventQueue::pthread_cond_and_mutex_init()
@@ -30,16 +29,7 @@ int EventQueue::pthread_cond_and_mutex_init()
 	return 0;
 }
 
-EventQueue::~EventQueue()
-{
-	delete queue;
-	queue = NULL;
-
-	pthread_mutex_destroy(&mutex);
-	pthread_cond_destroy(&cond);
-}
-
-bufferevent* EventQueue::pop()
+bufferevent* EventQueue::pop(bool stop)
 {
 	struct bufferevent* bev = NULL;
 	try
@@ -47,13 +37,16 @@ bufferevent* EventQueue::pop()
 		if(pthread_mutex_lock(&mutex) != 0)
 			throw std::runtime_error(strerror(errno));
 
-		while(queue->empty())
+		while(queue.empty())
 		{
+			if(stop)
+				return NULL;
+
 			if(pthread_cond_wait(&cond, &mutex) != 0)
 				throw std::runtime_error(strerror(errno));
 		}
-		bev = queue->front();
-		queue->pop_front();
+		bev = queue.front();
+		queue.pop_front();
 
 		if(pthread_mutex_unlock(&mutex) != 0)
 			throw std::runtime_error(strerror(errno));
@@ -70,7 +63,14 @@ bufferevent* EventQueue::pop()
 void EventQueue::push(struct bufferevent* bev)
 {
 	pthread_mutex_lock(&mutex);
-	queue->push_back(bev);
+	queue.push_back(bev);
 	pthread_cond_signal(&cond);
+	pthread_mutex_unlock(&mutex);
+}
+
+void EventQueue::cond_broadcast()
+{
+	pthread_mutex_lock(&mutex);
+	pthread_cond_broadcast(&cond);
 	pthread_mutex_unlock(&mutex);
 }

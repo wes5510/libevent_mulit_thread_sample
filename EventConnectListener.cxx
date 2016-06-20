@@ -55,14 +55,11 @@ void EventConnectListener::error_cb(struct evconnlistener* listener, void* ctx)
 void EventConnectListener::dispatch()
 {
 	event_base_dispatch(evbase);
-	shutdown();
+	evconnlistener_free(listener);
+	event_base_free(evbase);
 }
 
 void EventConnectListener::shutdown()
 {
-	if(evbase != NULL){
-		event_base_loopexit(evbase, NULL);
-		evbase = NULL;
-	}
-	if(!listener) evconnlistener_free(listener);
+	event_base_loopexit(evbase, NULL);
 }

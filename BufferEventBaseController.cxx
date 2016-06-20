@@ -25,8 +25,8 @@ struct event_base* BufferEventBaseController::get_next_event_base()
 
 void BufferEventBaseController::destroy()
 {
-	for(int i = 0; i < event_base_cnt_; i++)
-	{
+	for(int i = 0; i < event_base_cnt_; i++){
 		event_base_free(event_bases[i]);
+		event_bases[i] = NULL;
 	}
 }

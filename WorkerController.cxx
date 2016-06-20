@@ -36,6 +36,12 @@ Worker* WorkerController::get_next_worker()
 void WorkerController::destroy()
 {
 	for(int i = 0; i < worker_cnt_; i++)
+		workers[i]->set_terminate(true);
+
+	EventQueue *event_queue = EventQueue::get_instance();
+	event_queue->cond_broadcast();
+
+	for(int i = 0; i < worker_cnt_; i++)
 	{
 		delete workers[i];
 		workers[i] = NULL;

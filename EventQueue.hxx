@@ -10,16 +10,16 @@
 class EventQueue
 {
 	private:
-		std::deque<struct bufferevent*>* queue;
+		std::deque<struct bufferevent*> queue;
 		pthread_mutex_t mutex;
 		pthread_cond_t cond;
 		EventQueue();
 		int pthread_cond_and_mutex_init();
 	public:
-		~EventQueue();
 		static EventQueue* get_instance();
-		struct bufferevent* pop();
+		struct bufferevent* pop(bool stop);
 		void push(struct bufferevent* bev);
+		void cond_broadcast();
 };
 
 #endif

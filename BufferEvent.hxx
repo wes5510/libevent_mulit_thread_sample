@@ -13,7 +13,6 @@ class BufferEvent
 		static void read_cb(struct bufferevent* bev, void* ctx);
 	public:
 		BufferEvent(int fd, enum bufferevent_options options);
-		~BufferEvent();
 };
 
 #endif

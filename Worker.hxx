@@ -10,9 +10,11 @@ class Worker : public Thread
 {
 	private:
 		EventQueue* event_queue;
+		bool terminate;
 	public:
 		Worker();
 		~Worker(){}
+		void set_terminate(bool flag);
 		void* run();
 };
 

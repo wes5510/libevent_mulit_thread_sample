@@ -39,12 +39,12 @@ void BufferEvent::event_cb(struct bufferevent* bev, short what, void* ctx)
 	if(what & BEV_EVENT_ERROR)
 	{
 		printf("bufferevent error - %s\n", strerror(errno));
-		exit(1);
+		event_base_loopexit(bufferevent_get_base(bev), NULL);
 	}
 	else if(what & BEV_EVENT_EOF)
 	{
 		printf("client disconnet\n");
-		bufferevent_free(bev);
+		event_base_loopexit(bufferevent_get_base(bev), NULL);
 	}
 }
 
